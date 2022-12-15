@@ -35,7 +35,7 @@ func main() {
 	strg := storage.NewStoragePg(psqlConn)
 
 	postService := service.NewPostService(strg)
-	categoryService:=service.NewCategoryService(strg)
+	categoryService := service.NewCategoryService(strg)
 
 	lis, err := net.Listen("tcp", cfg.GrpcPort)
 	if err != nil {
@@ -46,7 +46,7 @@ func main() {
 	reflection.Register(s)
 
 	pb.RegisterPostServiceServer(s, postService)
-	pb.RegisterCategoryServiceServer(s,categoryService)
+	pb.RegisterCategoryServiceServer(s, categoryService)
 
 	log.Println("Grpc server started in port ", cfg.GrpcPort)
 	if err := s.Serve(lis); err != nil {

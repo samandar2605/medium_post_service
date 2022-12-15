@@ -21,7 +21,7 @@ func parsePostModel(Post *repo.Post) *pb.Post {
 		UserId:      Post.UserId,
 		CategoryId:  Post.CategoryId,
 		UpdatedAt:   Post.UpdatedAt.Format(time.RFC3339),
-		ViewsCount:  Post.ViewsCount,
+		ViewsCount:  int32(Post.ViewsCount),
 		CreatedAt: Post.CreatedAt.Format(time.RFC3339),
 	}
 }
@@ -45,7 +45,7 @@ func (s *PostService) CreatePost(ctx context.Context, req *pb.Post) (*pb.Post, e
 		ImageUrl:    req.ImageUrl,
 		UserId:      req.UserId,
 		CategoryId:  req.CategoryId,
-		ViewsCount:  req.ViewsCount,
+		ViewsCount:  int64(req.ViewsCount),
 	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal server error: %v", err)
@@ -54,7 +54,7 @@ func (s *PostService) CreatePost(ctx context.Context, req *pb.Post) (*pb.Post, e
 	return parsePostModel(post), nil
 }
 
-func (s *PostService) Get(ctx context.Context, req *pb.IdRequest) (*pb.Post, error) {
+func (s *PostService) Get(ctx context.Context, req *pb.GetPostRequest) (*pb.Post, error) {
 	Post, err := s.storage.Post().Get(int(req.Id))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal server error: %v", err)
@@ -68,7 +68,7 @@ func (s *PostService) GetAll(ctx context.Context, req *pb.GetAllPostsRequest) (*
 			Limit:  req.Limit,
 			Page:   req.Page,
 			UserID: req.UserId,
-			CategoryID: req.CategoryId,
+			CategoryID: int64(req.CategoryId),
 			SortByDate: req.SortByDate,
 	})
 	if err != nil {
@@ -76,8 +76,8 @@ func (s *PostService) GetAll(ctx context.Context, req *pb.GetAllPostsRequest) (*
 	}
 
 	response := pb.GetAllPostsResponse{
-		Count: result.Count,
-		Posts: make([]*pb.Post, 0),
+		Count: int64(result.Count),
+		Posts: make([]*pb.Post,10),
 	}
 
 	for _, Post := range result.Post {
@@ -94,7 +94,7 @@ func (s *PostService) Update(ctx context.Context, req *pb.Post) (*pb.Post, error
 		ImageUrl:    req.ImageUrl,
 		UserId:      req.UserId,
 		CategoryId:  req.CategoryId,
-		ViewsCount:  req.ViewsCount,
+		ViewsCount:  int64(req.ViewsCount),
 	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal server error: %v", err)
@@ -103,7 +103,7 @@ func (s *PostService) Update(ctx context.Context, req *pb.Post) (*pb.Post, error
 	return parsePostModel(post), nil
 }
 
-func (s *PostService) Delete(ctx context.Context, req *pb.IdRequest) (*pb.Empty, error) {
+func (s *PostService) Delete(ctx context.Context, req *pb.GetPostRequest) (*pb.Empty, error) {
 	err := s.storage.Post().Delete(int(req.Id))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal server error: %v", err)
