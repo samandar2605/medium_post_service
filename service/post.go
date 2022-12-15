@@ -103,10 +103,10 @@ func (s *PostService) Update(ctx context.Context, req *pb.Post) (*pb.Post, error
 	return parsePostModel(post), nil
 }
 
-func (s *PostService) Delete(ctx context.Context, req *pb.GetPostRequest) (*pb.Empty, error) {
+func (s *PostService) Delete(ctx context.Context, req *pb.GetPostRequest) (*pb.Blank, error) {
 	err := s.storage.Post().Delete(int(req.Id))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal server error: %v", err)
 	}
-	return &pb.Empty{}, nil
+	return &pb.Blank{}, nil
 }

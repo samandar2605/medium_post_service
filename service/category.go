@@ -40,7 +40,7 @@ func (s *CategoryService) Create(ctx context.Context, req *pb.Category) (*pb.Cat
 	}
 	return parseCategoryModel(category), nil
 }
-func (s *CategoryService) Get(ctx context.Context, req *pb.IdRequest) (*pb.Category, error) {
+func (s *CategoryService) Get(ctx context.Context, req *pb.IdByRequest) (*pb.Category, error) {
 	resp, err := s.storage.Category().Get(int(req.Id))
 	if err != nil {
 		return nil, err
@@ -79,10 +79,10 @@ func (s *CategoryService) Update(ctx context.Context, req *pb.Category) (*pb.Cat
 	return parseCategoryModel(category), nil
 }
 
-func (s *CategoryService) Delete(ctx context.Context, req *pb.IdRequest) (*pb.Empty, error) {
+func (s *CategoryService) Delete(ctx context.Context, req *pb.IdByRequest) (*pb.Blank, error) {
 	err := s.storage.Category().Delete(int(req.Id))
 	if err != nil {
 		return nil, err
 	}
-	return &pb.Empty{}, nil
+	return &pb.Blank{}, nil
 }
