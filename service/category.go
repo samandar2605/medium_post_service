@@ -62,6 +62,7 @@ func (s *CategoryService) GetAll(ctx context.Context, req *pb.GetCategoryRequest
 		Count:      int32(resp.Count),
 		Categories: make([]*pb.Category, 0),
 	}
+
 	for _, category := range resp.Categories {
 		result.Categories = append(result.Categories, parseCategoryModel(category))
 	}
