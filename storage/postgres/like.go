@@ -50,7 +50,7 @@ func (lr *likeRepo) CreateOrUpdate(l *repo.Like) error {
 
 func (cr *likeRepo) Get(userID, postID int64) (*repo.Like, error) {
 	var result repo.Like
-
+	
 	query := `
 		SELECT
 			id,

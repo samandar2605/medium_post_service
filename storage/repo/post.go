@@ -3,10 +3,10 @@ package repo
 import "time"
 
 type GetPostQuery struct {
-	Page       int32    `json:"page" db:"page" binding:"required" default:"1"`
-	Limit      int32    `json:"limit" db:"limit" binding:"required" default:"10"`
-	UserID     int64    `json:"user_id"`
-	CategoryID int64    `json:"post_id"`
+	Page       int32  `json:"page" db:"page" binding:"required" default:"1"`
+	Limit      int32  `json:"limit" db:"limit" binding:"required" default:"10"`
+	UserID     int64  `json:"user_id"`
+	CategoryID int64  `json:"post_id"`
 	SortByDate string `json:"sort_by_date" enums:"asc,desc" default:"desc"`
 }
 
@@ -38,6 +38,5 @@ type PostStorageI interface {
 	GetAll(param GetPostQuery) (*GetAllPostResult, error)
 	Update(usr *Post) (*Post, error)
 	Delete(id int) error
-	GetUserInfo(id int) int
 	ViewsInc(id int) error
 }

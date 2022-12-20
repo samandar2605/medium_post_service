@@ -5,8 +5,9 @@ import (
 	"log"
 	"net"
 
+	_"github.com/lib/pq"
+
 	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
 	pb "github.com/samandar2605/medium_post_service/genproto/post_service"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"

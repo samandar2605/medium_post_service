@@ -18,15 +18,17 @@ func NewPost(db *sqlx.DB) repo.PostStorageI {
 }
 
 func (pr *postRepo) Create(p *repo.Post) (*repo.Post, error) {
+	fmt.Println("<<<Storage ichida>>>")
+	fmt.Println(p)
+
 	query := `
 		INSERT INTO posts(
 			title,
 			description,
 			image_url,
 			user_id,
-			category_id,
-			views_count
-		)values($1,$2,$3,$4,$5,$6)
+			category_id
+		)values($1,$2,$3,$4,$5)
 		RETURNING id,created_at
 	`
 	row := pr.db.QueryRow(
@@ -36,7 +38,6 @@ func (pr *postRepo) Create(p *repo.Post) (*repo.Post, error) {
 		p.ImageUrl,
 		p.UserId,
 		p.CategoryId,
-		p.ViewsCount,
 	)
 
 	if err := row.Scan(
@@ -146,6 +147,7 @@ func (pr *postRepo) GetAll(param repo.GetPostQuery) (*repo.GetAllPostResult, err
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println("postgres ichida ", result)
 	return &result, nil
 }
 
@@ -202,22 +204,4 @@ func (ur *postRepo) ViewsInc(id int) error {
 		return err
 	}
 	return nil
-}
-
-func (pr *postRepo) GetUserInfo(id int) int {
-	var userId int
-
-	query := `
-		SELECT 
-			user_id
-		from posts
-		where id=$1
-	`
-	row := pr.db.QueryRow(query, id)
-	if err := row.Scan(
-		&userId,
-	); err != nil {
-		return -1
-	}
-	return userId
 }

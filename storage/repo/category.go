@@ -17,8 +17,8 @@ type CategoryStorageI interface {
 }
 
 type GetCategoryQuery struct {
-	Page   int `json:"page" db:"page" binding:"required" default:"1"`
-	Limit  int `json:"limit" db:"limit" binding:"required" default:"10"`
+	Page   int    `json:"page" db:"page" binding:"required" default:"1"`
+	Limit  int    `json:"limit" db:"limit" binding:"required" default:"10"`
 	Search string `json:"search"`
 }
 

@@ -37,7 +37,6 @@ func (s *storagePg) Comment() repo.CommentStorageI {
 	return s.commentRepo
 }
 
-
 func (s *storagePg) Post() repo.PostStorageI {
 	return s.postRepo
 }

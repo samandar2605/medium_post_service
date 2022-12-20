@@ -1,9 +1,5 @@
 package repo
 
-import (
-	"time"
-)
-
 type GetCommentQuery struct {
 	Page       int    `json:"page" db:"page" binding:"required" default:"1"`
 	Limit      int    `json:"limit" db:"limit" binding:"required" default:"10"`
@@ -18,12 +14,12 @@ type GetAllCommentsResult struct {
 }
 
 type Comment struct {
-	Id          int         `json:"id" db:"id"`
-	PostId      int         `json:"post_id" db:"post_id"`
-	UserId      int         `json:"user_id" db:"user_id"`
-	Description string     `json:"description" db:"description"`
-	CreatedAt   time.Time   `json:"created_at" db:"created_at"`
-	UpdatedAt   time.Time   `json:"updated_at" db:"updated_at"`
+	Id          int    `json:"id" db:"id"`
+	PostId      int    `json:"post_id" db:"post_id"`
+	UserId      int    `json:"user_id" db:"user_id"`
+	Description string `json:"description" db:"description"`
+	CreatedAt   string `json:"created_at" db:"created_at"`
+	UpdatedAt   string `json:"updated_at" db:"updated_at"`
 }
 
 type CommentStorageI interface {
@@ -31,6 +27,6 @@ type CommentStorageI interface {
 	Get(id int) (*Comment, error)
 	GetAll(param GetCommentQuery) (*GetAllCommentsResult, error)
 	Update(cr *Comment) (*Comment, error)
-	GetUserInfo(id int) (int)
+	GetUserInfo(id int) int
 	Delete(id int) error
 }

@@ -157,7 +157,7 @@ func (cr *commentRepo) Update(comme *repo.Comment) (*repo.Comment, error) {
 		comme.Id,
 	)
 
-	comme.UpdatedAt = time.Now()
+	comme.UpdatedAt = time.Now().Format(time.RFC3339)
 	if err := result.Scan(
 		&comme.CreatedAt,
 	); err != nil {

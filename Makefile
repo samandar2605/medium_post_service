@@ -2,7 +2,7 @@ POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
-POSTGRES_DATABASE=medium_user_service_db
+POSTGRES_DATABASE=medium_post_service_db
 
 CURRENT_DIR=$(shell pwd)
 
@@ -10,10 +10,6 @@ CURRENT_DIR=$(shell pwd)
   
 DB_URL="postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DATABASE)?sslmode=disable"
 
-
-print:
-	echo "$(DB_URL)"
-	
 swag-init:
 	swag init -g api/api.go -o api/docs
 

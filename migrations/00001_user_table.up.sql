@@ -1,16 +1,32 @@
-CREATE TABLE IF NOT EXISTS "users"(
+CREATE TABLE IF NOT EXISTS "categories"(
     "id" SERIAL PRIMARY KEY,
-    "first_name" VARCHAR(30) NOT NULL,
-    "last_name" VARCHAR(30) NOT NULL,
-    "phone_number" VARCHAR(20) UNIQUE,
-    "email" VARCHAR(50) NOT NULL UNIQUE,
-    "gender" VARCHAR(10) CHECK ("gender" IN('male', 'female')),
-    "password" VARCHAR NOT NULL,
-    "username" VARCHAR(30) UNIQUE,
-    "profile_image_url" VARCHAR,
-    "type" VARCHAR(255) CHECK ("type" IN('superadmin', 'user')) NOT NULL,
+    "title" varchar(255) NOT null,
     "created_at" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+CREATE TABLE if not exists "posts"(
+    "id" serial PRIMARY KEY,
+    "title" VARCHAR(255) NOT NULL,
+    "description" TEXT,
+    "image_url" VARCHAR(255),
+    "user_id" INTEGER NOT NULL,
+    "category_id" INTEGER NOT NULL,
+    "created_at" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP WITH TIME ZONE,
+    "views_count" INTEGER not NULL default 0
+);
 
-INSERT INTO users(first_name, last_name, email, password, type)
-VALUES('Samandar', 'To`xtayev', 'samandarukan265@gmail.com', '$2a$10$JT0HAAksN7kvv6m0TXAvIejUzNOs19uRA7Ae8qIjn5lLa2hP1isNK', 'superadmin')
+create table if not exists "comments"(
+    "id"     serial primary key,
+    "post_id" integer not null,
+    "user_id" integer not null,
+    "description" text not null,
+    "created_at"  TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    "updated_at"  TIMESTAMP WITH TIME ZONE
+);
+
+create table if not exists "likes"(
+    "id"    serial primary key,
+    "post_id" integer not null, 
+    "user_id" integer not null,
+    "status" boolean
+);
