@@ -86,7 +86,7 @@ func (cr *categoryRepo) GetAll(param repo.GetCategoryQuery) (*repo.GetAllCategor
 			created_at
 		FROM categories
 		` + filter + `
-		ORDER BY created_at desc
+		ORDER BY created_at ASC
 		` + limit
 
 	rows, err := cr.db.Query(query)

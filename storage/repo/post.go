@@ -32,11 +32,28 @@ type Post struct {
 	CreatedAt   time.Time `json:"created_at" db:"created_at"`
 }
 
+type CreatePost struct {
+	Title       string `json:"title" db:"title"`
+	Description string `json:"description" db:"description"`
+	ImageUrl    string `json:"image_url" db:"image_url"`
+	UserId      int64  `json:"user_id" db:"user_id"`
+	CategoryId  int64  `json:"category_id" db:"category_id"`
+	ViewsCount  int64  `json:"views_count" db:"views_count"`
+}
+
+type ChangePost struct {
+	Id          int64  `json:"id" db:"id"`
+	UserId      int64  `json:"user_id" db:"user_id"`
+	Title       string `json:"title" db:"title"`
+	Description string `json:"description" db:"description"`
+	ImageUrl    string `json:"image_url" db:"image_url"`
+}
+
 type PostStorageI interface {
 	Create(p *Post) (*Post, error)
 	Get(id int) (*Post, error)
 	GetAll(param GetPostQuery) (*GetAllPostResult, error)
-	Update(usr *Post) (*Post, error)
+	Update(usr *ChangePost) (*Post, error)
 	Delete(id int) error
 	ViewsInc(id int) error
 }

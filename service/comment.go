@@ -18,22 +18,23 @@ func parseComment(comment *repo.Comment) *pb.Comment {
 		UserId:      int64(comment.UserId),
 		Description: comment.Description,
 		CreatedAt:   comment.CreatedAt,
+		UpdatedAt:   comment.UpdatedAt,
 	}
 }
 
 type CommentService struct {
-	pb.UnimplementedPostServiceServer
+	pb.UnimplementedCommentServiceServer
 	storage storage.StorageI
 }
 
 func NewCommentService(strg storage.StorageI) *CommentService {
 	return &CommentService{
-		UnimplementedPostServiceServer: pb.UnimplementedPostServiceServer{},
-		storage:                        strg,
+		UnimplementedCommentServiceServer: pb.UnimplementedCommentServiceServer{},
+		storage:                           strg,
 	}
 }
 
-func (s *CommentService) CreateComment(ctx context.Context, req *pb.CreateComment) (*pb.Comment, error) {
+func (s *CommentService) Create(ctx context.Context, req *pb.CreateCommentRequest) (*pb.Comment, error) {
 	comment, err := s.storage.Comment().Create(&repo.Comment{
 		PostId:      int(req.PostId),
 		UserId:      int(req.UserId),
@@ -69,7 +70,7 @@ func (s *CommentService) GetAll(ctx context.Context, req *pb.GetCommentQuery) (*
 
 	response := pb.GetAllCommentsResult{
 		Count:    int64(result.Count),
-		Comments: make([]*pb.Comment, 10),
+		Comments: make([]*pb.Comment, 0),
 	}
 
 	for _, Comment := range result.Comments {
@@ -88,6 +89,7 @@ func (s *CommentService) Update(ctx context.Context, req *pb.Comment) (*pb.Comme
 		CreatedAt:   req.CreatedAt,
 		UpdatedAt:   req.UpdatedAt,
 	})
+
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal server error: %v", err)
 	}

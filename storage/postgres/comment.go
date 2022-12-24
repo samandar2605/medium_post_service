@@ -48,18 +48,13 @@ func (cr *commentRepo) Get(id int) (*repo.Comment, error) {
 	var Comment repo.Comment
 	query := `
 		SELECT
-			c.id,
-			c.user_id,
-			c.post_id,
-			c.description,
-			c.created_at,
-			u.first_name,
-			u.last_name,
-			u.email,
-			u.profile_image_url
-		FROM comments c
-		INNER JOIN users u ON u.id=c.user_id
-		where c.id=$1`
+			id,
+			user_id,
+			post_id,
+			description,
+			created_at
+		FROM comments
+		where id=$1`
 
 	result := cr.db.QueryRow(
 		query,
@@ -67,8 +62,8 @@ func (cr *commentRepo) Get(id int) (*repo.Comment, error) {
 	)
 	if err := result.Scan(
 		&Comment.Id,
-		&Comment.PostId,
 		&Comment.UserId,
+		&Comment.PostId,
 		&Comment.Description,
 		&Comment.CreatedAt,
 	); err != nil {
@@ -88,32 +83,27 @@ func (cr *commentRepo) GetAll(param repo.GetCommentQuery) (*repo.GetAllCommentsR
 	limit := fmt.Sprintf(" LIMIT %d OFFSET %d ", param.Limit, offset)
 	filter := ""
 	if param.PostId > 0 {
-		filter += fmt.Sprintf("where post_id=%d", param.PostId)
+		filter += fmt.Sprintf(" where post_id=%d and id!=0 ", param.PostId)
 	}
 
 	if param.UserId > 0 {
 		if filter == "" {
-			filter += fmt.Sprintf("where user_id=%d", param.UserId)
+			filter += fmt.Sprintf(" where user_id=%d", param.UserId)
 		} else {
-			filter += fmt.Sprintf("and user_id=%d", param.UserId)
+			filter += fmt.Sprintf(" and user_id=%d ", param.UserId)
 		}
 	}
 
 	query := `
 		SELECT
-			c.id,
-			c.user_id,
-			c.post_id,
-			c.description,
-			c.created_at,
-			u.first_name,
-			u.last_name,
-			u.email,
-			u.profile_image_url
-		FROM comments c
-		INNER JOIN users u ON u.id=c.user_id
+			id,
+			user_id,
+			post_id,
+			description,
+			created_at
+		FROM comments 
 		` + filter + `
-		ORDER BY c.created_at ` + param.SortByDate + ` ` + limit
+		ORDER BY created_at ` + param.SortByDate + ` ` + limit
 
 	rows, err := cr.db.Query(query)
 	if err != nil {
@@ -125,8 +115,8 @@ func (cr *commentRepo) GetAll(param repo.GetCommentQuery) (*repo.GetAllCommentsR
 		var Comment repo.Comment
 		if err := rows.Scan(
 			&Comment.Id,
-			&Comment.PostId,
 			&Comment.UserId,
+			&Comment.PostId,
 			&Comment.Description,
 			&Comment.CreatedAt,
 		); err != nil {
@@ -135,12 +125,12 @@ func (cr *commentRepo) GetAll(param repo.GetCommentQuery) (*repo.GetAllCommentsR
 		result.Comments = append(result.Comments, &Comment)
 	}
 	queryCount := `
-		SELECT count(1) FROM comments c
-		INNER JOIN users u ON u.id=c.user_id ` + filter
+		SELECT count(1) FROM comments ` + filter
 	err = cr.db.QueryRow(queryCount).Scan(&result.Count)
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(result)
 	return &result, nil
 }
 
@@ -149,21 +139,22 @@ func (cr *commentRepo) Update(comme *repo.Comment) (*repo.Comment, error) {
 		update comments set 
 			description=$1,
 			updated_at=$2
-		where id=$3
-		RETURNING created_at
+		where id=$3 and user_id=$4
+		RETURNING post_id,created_at
 	`,
 		comme.Description,
 		time.Now(),
 		comme.Id,
+		comme.UserId,
 	)
 
 	comme.UpdatedAt = time.Now().Format(time.RFC3339)
 	if err := result.Scan(
+		&comme.PostId,
 		&comme.CreatedAt,
 	); err != nil {
 		return nil, err
 	}
-	fmt.Println(comme)
 
 	return comme, nil
 }

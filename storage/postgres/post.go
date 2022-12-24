@@ -18,9 +18,6 @@ func NewPost(db *sqlx.DB) repo.PostStorageI {
 }
 
 func (pr *postRepo) Create(p *repo.Post) (*repo.Post, error) {
-	fmt.Println("<<<Storage ichida>>>")
-	fmt.Println(p)
-
 	query := `
 		INSERT INTO posts(
 			title,
@@ -29,7 +26,7 @@ func (pr *postRepo) Create(p *repo.Post) (*repo.Post, error) {
 			user_id,
 			category_id
 		)values($1,$2,$3,$4,$5)
-		RETURNING id,created_at
+		RETURNING id,created_at,views_count
 	`
 	row := pr.db.QueryRow(
 		query,
@@ -43,10 +40,10 @@ func (pr *postRepo) Create(p *repo.Post) (*repo.Post, error) {
 	if err := row.Scan(
 		&p.Id,
 		&p.CreatedAt,
+		&p.ViewsCount,
 	); err != nil {
 		return nil, err
 	}
-
 	return p, nil
 }
 
@@ -100,7 +97,7 @@ func (pr *postRepo) GetAll(param repo.GetPostQuery) (*repo.GetAllPostResult, err
 		if filter == "" {
 			filter += fmt.Sprintf("where user_id=%d", param.UserID)
 		} else {
-			filter += fmt.Sprintf("or user_id=%d", param.UserID)
+			filter += fmt.Sprintf("and user_id=%d", param.UserID)
 		}
 	}
 	if param.SortByDate == "" {
@@ -147,40 +144,53 @@ func (pr *postRepo) GetAll(param repo.GetPostQuery) (*repo.GetAllPostResult, err
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("postgres ichida ", result)
 	return &result, nil
 }
 
-func (pr *postRepo) Update(post *repo.Post) (*repo.Post, error) {
+func (pr *postRepo) Update(post *repo.ChangePost) (*repo.Post, error) {
+	var ResponsePost repo.Post
+	fmt.Println("Id: ",post.Id)
+	fmt.Println("Title: ",post.Title)
+	fmt.Println("UserId: ",post.UserId)
+	fmt.Println("Description: ",post.Description)
+	fmt.Println("ImageUrl: ",post.ImageUrl)
 	query := `
 		update posts set 
 			title=$1,
 			description=$2,
 			image_url=$3,
-			user_id=$4,
-			category_id=$5,
-			views_count=$6,
-			updated_at=$7
-		where id=$8
-		RETURNING created_at
+			updated_at=$4
+		where id=$5 and user_id=$6
+		RETURNING
+			category_id,
+			views_count,
+			created_at
 	`
 	row := pr.db.QueryRow(
 		query,
 		post.Title,
 		post.Description,
 		post.ImageUrl,
-		post.UserId,
-		post.CategoryId,
-		post.ViewsCount,
 		time.Now(),
 		post.Id,
+		post.UserId,
 	)
-	post.UpdatedAt = time.Now()
-	if err := row.Scan(&post.CreatedAt); err != nil {
+	ResponsePost.Id = post.Id
+	ResponsePost.Title = post.Title
+	ResponsePost.Description = post.Description
+	ResponsePost.ImageUrl = post.ImageUrl
+	ResponsePost.UserId = post.UserId
+	ResponsePost.UpdatedAt = time.Now()
+
+	if err := row.Scan(
+		&ResponsePost.CategoryId,
+		&ResponsePost.ViewsCount,
+		&ResponsePost.CreatedAt,
+	); err != nil {
 		return nil, err
 	}
 
-	return post, nil
+	return &ResponsePost, nil
 }
 
 func (ur *postRepo) Delete(id int) error {

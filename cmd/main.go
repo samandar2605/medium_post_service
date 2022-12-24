@@ -37,6 +37,7 @@ func main() {
 
 	postService := service.NewPostService(strg)
 	categoryService := service.NewCategoryService(strg)
+	commentService := service.NewCommentService(strg)
 
 	lis, err := net.Listen("tcp", cfg.GrpcPort)
 	if err != nil {
@@ -48,6 +49,7 @@ func main() {
 
 	pb.RegisterPostServiceServer(s, postService)
 	pb.RegisterCategoryServiceServer(s, categoryService)
+	pb.RegisterCommentServiceServer(s,commentService)
 
 	log.Println("Grpc server started in port ", cfg.GrpcPort)
 	if err := s.Serve(lis); err != nil {

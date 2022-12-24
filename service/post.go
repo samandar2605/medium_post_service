@@ -39,7 +39,7 @@ func NewPostService(strg storage.StorageI) *PostService {
 	}
 }
 
-func (s *PostService) CreatePost(ctx context.Context, req *pb.CreatePost) (*pb.Post, error) {
+func (s *PostService) Create(ctx context.Context, req *pb.CreatePost) (*pb.Post, error) {
 	post, err := s.storage.Post().Create(&repo.Post{
 		Title:       req.Title,
 		Description: req.Description,
@@ -47,6 +47,7 @@ func (s *PostService) CreatePost(ctx context.Context, req *pb.CreatePost) (*pb.P
 		UserId:      req.UserId,
 		CategoryId:  req.CategoryId,
 	})
+
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal server error: %v", err)
 	}
@@ -77,25 +78,35 @@ func (s *PostService) GetAll(ctx context.Context, req *pb.GetAllPostsRequest) (*
 
 	response := pb.GetAllPostsResponse{
 		Count: int64(result.Count),
-		Posts: make([]*pb.Post, 10),
+		Posts: make([]*pb.Post, 0),
 	}
 
 	for _, Post := range result.Post {
+		err := s.storage.Post().ViewsInc(int(Post.Id))
+		if err != nil {
+			return nil, err
+		}
 		response.Posts = append(response.Posts, parsePostModel(Post))
 	}
 
-	fmt.Println("service ichida",response)
 	return &response, nil
 }
 
-func (s *PostService) Update(ctx context.Context, req *pb.Post) (*pb.Post, error) {
-	post, err := s.storage.Post().Update(&repo.Post{
+func (s *PostService) Update(ctx context.Context, req *pb.ChangePost) (*pb.Post, error) {
+	// fmt.Println("service", req)
+	fmt.Println("Id: ",req.Id)
+	fmt.Println("Title: ",req.Title)
+	fmt.Println("UserId: ",req.UserId)
+	fmt.Println("Description: ",req.Description)
+	fmt.Println("ImageUrl: ",req.ImageUrl)
+
+
+	post, err := s.storage.Post().Update(&repo.ChangePost{
+		Id:          req.Id,
 		Title:       req.Title,
+		UserId:      req.UserId,
 		Description: req.Description,
 		ImageUrl:    req.ImageUrl,
-		UserId:      req.UserId,
-		CategoryId:  req.CategoryId,
-		ViewsCount:  int64(req.ViewsCount),
 	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal server error: %v", err)
